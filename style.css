@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;1,100;1,200&family=Prompt:wght@200;300;400;500&display=swap');
+*{
+    font-family: 'Kanit', sans-serif;
+    font-family: 'Prompt', sans-serif;
+    /* font-size: 16px; */
+}
+body{
+    background: #F8F6F4;
+}
+.bg-1{
+    background: #374259;
+}
+.bg-2{
+    background: #52575D;
+}
+.bg-3{
+    background: #41444B;
+}
+.bg-4{
+    background: #E0AED0;
+}
+
+.text-secondary{
+    font-size: 18px !important;
+}

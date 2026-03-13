@@ -183,9 +183,9 @@ $cartCount = count($cartRows);
                                         <tr>
                                             <td class="ps-3 fw-semibold small"><?php echo $rowCart['equipment_Name'] ?></td>
                                             <td>
-                                                <div class="input-group input-group-sm justify-content-center">
+                                                <div class="input-group justify-content-center">
                                                     <button class="btn btn-outline-secondary rounded-start-pill" onclick="editQty('<?php echo $rowCart['equipment_Code']; ?>','subtract')"><i class="bi bi-dash"></i></button>
-                                                    <input type="text" id="qty_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty']; ?>" class="form-control text-center border-secondary" style="max-width:50px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');" onchange="editQtyManual('<?php echo $rowCart['equipment_Code']; ?>')">
+                                                    <input type="text" id="qty_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty']; ?>" class="form-control text-center border-secondary" style="max-width:70px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');" onchange="editQtyManual('<?php echo $rowCart['equipment_Code']; ?>')">
                                                     <button class="btn btn-outline-secondary rounded-end-pill" onclick="editQty('<?php echo $rowCart['equipment_Code']; ?>','add')"><i class="bi bi-plus"></i></button>
                                                 </div>
                                             </td>
@@ -293,7 +293,7 @@ $cartCount = count($cartRows);
                                         <td>
                                             <div class="input-group input-group-sm justify-content-center">
                                                 <button class="btn btn-outline-secondary rounded-start-pill" onclick="editQty_M('<?php echo $rowCart['equipment_Code']; ?>','subtract')"><i class="bi bi-dash"></i></button>
-                                                <input type="text" id="qtym_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty'] ?>" class="form-control text-center border-secondary" style="max-width:50px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                                <input type="text" id="qtym_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty'] ?>" class="form-control text-center border-secondary" style="max-width:70px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                                 <button class="btn btn-outline-secondary rounded-end-pill" onclick="editQty_M('<?php echo $rowCart['equipment_Code']; ?>','add')"><i class="bi bi-plus"></i></button>
                                             </div>
                                         </td>

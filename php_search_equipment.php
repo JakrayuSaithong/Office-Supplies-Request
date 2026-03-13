@@ -5,11 +5,6 @@ include_once('condb.php');
 $term = isset($_GET['term']) ? $_GET['term'] : '';
 $exclude = isset($_GET['exclude']) ? $_GET['exclude'] : '';
 
-if (strlen($term) < 1) {
-    echo json_encode([]);
-    exit;
-}
-
 $excludeClause = '';
 if ($exclude !== '') {
     $excludeList = array_filter(array_map('intval', explode(',', $exclude)));

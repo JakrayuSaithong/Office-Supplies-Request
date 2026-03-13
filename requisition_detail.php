@@ -492,7 +492,7 @@ $canEdit = $canEditAsOwner || $canEditAsAdmin;
                 width: '100%',
                 placeholder: 'พิมพ์รหัสหรือชื่อสินค้า...',
                 allowClear: true,
-                minimumInputLength: 1,
+                minimumInputLength: 0,
                 ajax: {
                     url: 'php_search_equipment.php',
                     dataType: 'json',

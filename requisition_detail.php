@@ -217,17 +217,15 @@ $canEdit = $canEditAsOwner || $canEditAsAdmin;
 
                             if($row['employee_ID'] == $_SESSION['employee_ID']){
                     ?>
-                            <button class="btn btn-info rounded-pill px-4" onclick="openEditModal()"><i class="fa-solid fa-pen-to-square"></i> แก้ไขรายการเบิก</button>
-                            <button class="btn btn-primary rounded-pill px-4" onclick="openAddItemModal()"><i class="fa-solid fa-circle-plus"></i> เพิ่มรายการ</button>
+                            <button class="btn btn-info rounded-pill px-4" onclick="openManageModal()"><i class="fa-solid fa-pen-to-square"></i> แก้ไข/เพิ่มรายการ</button>
                     <?php
                             }
                         }
 
-                        if ($row['approval'] == "A") { 
+                        if ($row['approval'] == "A") {
                             if(($row['manager_status'] == "0" || $row['manager_status'] == "2" || $row['manager_status'] == "3") && $_SESSION['level'] == "0"){
                     ?>
-                            <button class="btn btn-info rounded-pill px-4" onclick="openEditModal()"><i class="fa-solid fa-pen-to-square"></i> แก้ไขรายการเบิก</button>
-                            <button class="btn btn-primary rounded-pill px-4" onclick="openAddItemModal()"><i class="fa-solid fa-circle-plus"></i> เพิ่มรายการ</button>
+                            <button class="btn btn-info rounded-pill px-4" onclick="openManageModal()"><i class="fa-solid fa-pen-to-square"></i> แก้ไข/เพิ่มรายการ</button>
                     <?php 
                             }
 
@@ -287,74 +285,62 @@ $canEdit = $canEditAsOwner || $canEditAsAdmin;
 </div>
 </div>
 
-<!-- ========== EDIT ITEMS MODAL ========== -->
-<div class="modal fade" id="editItemsModal" tabindex="-1" aria-labelledby="editItemsModalLabel" aria-hidden="true" data-bs-backdrop="static">
+<!-- ========== MANAGE ITEMS MODAL (รวม edit + add) ========== -->
+<div class="modal fade" id="manageItemsModal" tabindex="-1" aria-labelledby="manageItemsModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
-            <div class="modal-header bg-info bg-gradient text-white">
-                <h5 class="modal-title" id="editItemsModalLabel"><i class="fa-solid fa-pen-to-square me-2"></i>แก้ไขรายการเบิก</h5>
+            <div class="modal-header bg-primary bg-gradient text-white">
+                <h5 class="modal-title" id="manageItemsModalLabel"><i class="fa-solid fa-list-check me-2"></i>จัดการรายการเบิก</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <table class="table table-hover table-borderless">
-                    <thead>
-                        <tr class="text-center" style="border-bottom: 2px solid #dee2e6;">
-                            <th width="10%">รหัส</th>
-                            <th width="40%">รายการ</th>
-                            <th width="25%">จำนวน</th>
-                            <th width="15%">หน่วย</th>
-                            <th width="10%">ลบ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="editItemsBody">
-                    </tbody>
-                </table>
-                <div id="editItemsEmpty" class="text-center text-muted py-3 d-none">
+            <div class="modal-body p-3">
+                <!-- ส่วนเพิ่มรายการใหม่ -->
+                <div class="card border-0 bg-light mb-3" style="border-radius: 12px;">
+                    <div class="card-body pb-2">
+                        <h6 class="fw-bold text-primary mb-2"><i class="fa-solid fa-circle-plus me-1"></i> เพิ่มรายการใหม่</h6>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-12 col-md-7">
+                                <label class="form-label small fw-semibold"><i class="fa-solid fa-barcode me-1"></i> ค้นหารหัส / ชื่อสินค้า</label>
+                                <select id="manageItemSelect" class="form-control" style="width: 100%;"></select>
+                            </div>
+                            <div class="col-5 col-md-2">
+                                <label class="form-label small fw-semibold">จำนวน</label>
+                                <input type="number" id="manageItemQty" class="form-control text-center" min="1" value="1" style="border-radius: 8px;">
+                            </div>
+                            <div class="col-7 col-md-3">
+                                <button type="button" class="btn btn-success rounded-pill w-100" id="btnManageAddItem" disabled onclick="manageAddItem()">
+                                    <i class="fa-solid fa-plus"></i> เพิ่ม
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ส่วนรายการปัจจุบัน -->
+                <h6 class="fw-bold text-secondary mb-2"><i class="fa-solid fa-clipboard-list me-1"></i> รายการปัจจุบัน</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless align-middle">
+                        <thead>
+                            <tr class="text-center" style="border-bottom: 2px solid #dee2e6;">
+                                <th width="10%">รหัส</th>
+                                <th width="38%">รายการ</th>
+                                <th width="26%">จำนวน</th>
+                                <th width="14%">หน่วย</th>
+                                <th width="12%">ลบ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manageItemsBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="manageItemsEmpty" class="text-center text-muted py-3 d-none">
                     <i class="fa-solid fa-box-open fa-2x mb-2"></i>
                     <p>ไม่มีรายการ</p>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i> ปิด</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="saveEditItems()"><i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ========== ADD ITEM MODAL ========== -->
-<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog">
-        <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
-            <div class="modal-header bg-primary bg-gradient text-white">
-                <h5 class="modal-title" id="addItemModalLabel"><i class="fa-solid fa-circle-plus me-2"></i>เพิ่มรายการ</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label fw-bold"><i class="fa-solid fa-barcode me-1"></i> ค้นหารหัส / ชื่อสินค้า</label>
-                    <select id="addItemSelect" class="form-control" style="width: 100%;"></select>
-                </div>
-                <div id="addItemDetail" class="d-none">
-                    <div class="card bg-light border-0 p-3 mb-3" style="border-radius: 12px;">
-                        <div class="mb-2">
-                            <small class="text-muted">ชื่อสินค้า</small>
-                            <p class="fw-bold mb-0" id="addItemName">-</p>
-                        </div>
-                        <div class="mb-2">
-                            <small class="text-muted">หน่วยนับ</small>
-                            <p class="fw-bold mb-0" id="addItemUnit">-</p>
-                        </div>
-                        <div>
-                            <label class="form-label fw-bold">จำนวน</label>
-                            <input type="number" id="addItemQty" class="form-control text-center" min="1" value="1" style="border-radius: 8px; max-width: 120px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i> ปิด</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4" id="btnConfirmAddItem" disabled onclick="confirmAddItem()"><i class="fa-solid fa-plus"></i> เพิ่มลงรายการ</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="saveManageItems()"><i class="fa-solid fa-floppy-disk"></i> บันทึก</button>
             </div>
         </div>
     </div>
@@ -466,17 +452,17 @@ $canEdit = $canEditAsOwner || $canEditAsAdmin;
         });
     }
 
-    // ==================== EDIT ITEMS MODAL ====================
-    function openEditModal() {
-        var tbody = $('#editItemsBody');
+    // ==================== MANAGE ITEMS MODAL (รวม edit + add) ====================
+    var manageSelectedEquipment = null;
+
+    function openManageModal() {
+        var tbody = $('#manageItemsBody');
         tbody.empty();
 
         currentItems.forEach(function(item) {
-            // Lookup equipment display info
             var eqCodeDisplay = $('#Code_' + item.equipment_Code).text().trim() || item.equipment_Code;
             var nameCell = '';
             var unitCell = '';
-            // Try to find the row in the main table
             var mainRow = $('tr').filter(function() {
                 return $(this).find('[id="Code_' + item.equipment_Code + '"]').length > 0;
             });
@@ -484,58 +470,123 @@ $canEdit = $canEditAsOwner || $canEditAsAdmin;
                 nameCell = mainRow.find('td.text-start').first().text().trim();
                 unitCell = mainRow.find('td').last().text().trim();
             }
-
-            var row = '<tr class="text-center" data-eq="' + item.equipment_Code + '">' +
-                '<td><small>' + eqCodeDisplay + '</small></td>' +
-                '<td class="text-start">' + nameCell + '</td>' +
-                '<td>' +
-                    '<div class="input-group input-group-sm justify-content-center">' +
-                        '<button class="btn btn-outline-secondary rounded-start-pill" onclick="editModalQty(\'' + item.equipment_Code + '\', -1)"><i class="fa-solid fa-minus"></i></button>' +
-                        '<input type="number" class="form-control text-center border-secondary" style="max-width:70px;" min="1" value="' + item.Qty + '" id="editQty_' + item.equipment_Code + '" onchange="validateEditQty(\'' + item.equipment_Code + '\')">' +
-                        '<button class="btn btn-outline-secondary rounded-end-pill" onclick="editModalQty(\'' + item.equipment_Code + '\', 1)"><i class="fa-solid fa-plus"></i></button>' +
-                    '</div>' +
-                '</td>' +
-                '<td><small>' + unitCell + '</small></td>' +
-                '<td><button class="btn btn-outline-danger btn-sm rounded-pill" onclick="removeEditItem(\'' + item.equipment_Code + '\')"><i class="fa-solid fa-trash-can"></i></button></td>' +
-            '</tr>';
-            tbody.append(row);
+            tbody.append(buildManageRow(item.equipment_Code, eqCodeDisplay, nameCell, String(item.Qty), unitCell));
         });
 
-        toggleEditEmpty();
-        $('#editItemsModal').modal('show');
+        toggleManageEmpty();
+
+        // Reset add-item section
+        manageSelectedEquipment = null;
+        $('#manageItemQty').val(1);
+        $('#btnManageAddItem').prop('disabled', true);
+        if ($('#manageItemSelect').data('select2')) {
+            $('#manageItemSelect').val(null).trigger('change');
+        }
+
+        $('#manageItemsModal').modal('show');
+
+        // Init Select2 after modal shown
+        setTimeout(function() {
+            $('#manageItemSelect').select2({
+                dropdownParent: $('#manageItemsModal'),
+                width: '100%',
+                placeholder: 'พิมพ์รหัสหรือชื่อสินค้า...',
+                allowClear: true,
+                minimumInputLength: 1,
+                ajax: {
+                    url: 'php_search_equipment.php',
+                    dataType: 'json',
+                    delay: 300,
+                    data: function(params) {
+                        var existingIds = [];
+                        $('#manageItemsBody tr').each(function() {
+                            existingIds.push($(this).data('eq'));
+                        });
+                        return { term: params.term, exclude: existingIds.join(',') };
+                    },
+                    processResults: function(data) { return data; }
+                }
+            }).off('select2:select select2:clear')
+              .on('select2:select', function(e) {
+                manageSelectedEquipment = e.params.data;
+                $('#btnManageAddItem').prop('disabled', false);
+            }).on('select2:clear', function() {
+                manageSelectedEquipment = null;
+                $('#btnManageAddItem').prop('disabled', true);
+            });
+        }, 200);
     }
 
-    function editModalQty(eqCode, delta) {
-        var input = $('#editQty_' + eqCode);
+    function buildManageRow(eqCode, codeDisplay, name, qty, unit) {
+        return '<tr class="text-center align-middle" data-eq="' + eqCode + '" data-name="' + name + '" data-unit="' + unit + '">' +
+            '<td><small>' + codeDisplay + '</small></td>' +
+            '<td class="text-start"><small>' + name + '</small></td>' +
+            '<td>' +
+                '<div class="input-group input-group-sm justify-content-center">' +
+                    '<button class="btn btn-outline-secondary rounded-start-pill" onclick="manageModalQty(\'' + eqCode + '\', -1)"><i class="fa-solid fa-minus"></i></button>' +
+                    '<input type="number" class="form-control text-center border-secondary" style="max-width:65px;" min="1" value="' + qty + '" id="manageQty_' + eqCode + '" onchange="validateManageQty(\'' + eqCode + '\')">' +
+                    '<button class="btn btn-outline-secondary rounded-end-pill" onclick="manageModalQty(\'' + eqCode + '\', 1)"><i class="fa-solid fa-plus"></i></button>' +
+                '</div>' +
+            '</td>' +
+            '<td><small>' + unit + '</small></td>' +
+            '<td><button class="btn btn-outline-danger btn-sm rounded-pill" onclick="removeManageItem(\'' + eqCode + '\')"><i class="fa-solid fa-trash-can"></i></button></td>' +
+        '</tr>';
+    }
+
+    function manageAddItem() {
+        if (!manageSelectedEquipment) return;
+        var qty = parseInt($('#manageItemQty').val()) || 1;
+        if (qty < 1) qty = 1;
+        var eqCode = String(manageSelectedEquipment.id);
+        // ตรวจว่ามีในตารางแล้วหรือไม่
+        var existing = $('#manageItemsBody tr[data-eq="' + eqCode + '"]');
+        if (existing.length) {
+            var input = $('#manageQty_' + eqCode);
+            input.val(parseInt(input.val()) + qty);
+        } else {
+            $('#manageItemsBody').append(
+                buildManageRow(eqCode, manageSelectedEquipment.code || eqCode, manageSelectedEquipment.name, String(qty), manageSelectedEquipment.unit)
+            );
+        }
+        toggleManageEmpty();
+        // Clear select2
+        $('#manageItemSelect').val(null).trigger('change');
+        manageSelectedEquipment = null;
+        $('#btnManageAddItem').prop('disabled', true);
+        $('#manageItemQty').val(1);
+    }
+
+    function manageModalQty(eqCode, delta) {
+        var input = $('#manageQty_' + eqCode);
         var val = parseInt(input.val()) + delta;
         if (val < 1) val = 1;
         input.val(val);
     }
 
-    function validateEditQty(eqCode) {
-        var input = $('#editQty_' + eqCode);
+    function validateManageQty(eqCode) {
+        var input = $('#manageQty_' + eqCode);
         var val = parseInt(input.val());
         if (isNaN(val) || val < 1) input.val(1);
     }
 
-    function removeEditItem(eqCode) {
-        $('#editItemsBody tr[data-eq="' + eqCode + '"]').fadeOut(200, function() {
+    function removeManageItem(eqCode) {
+        $('#manageItemsBody tr[data-eq="' + eqCode + '"]').fadeOut(200, function() {
             $(this).remove();
-            toggleEditEmpty();
+            toggleManageEmpty();
         });
     }
 
-    function toggleEditEmpty() {
-        if ($('#editItemsBody tr').length === 0) {
-            $('#editItemsEmpty').removeClass('d-none');
+    function toggleManageEmpty() {
+        if ($('#manageItemsBody tr').length === 0) {
+            $('#manageItemsEmpty').removeClass('d-none');
         } else {
-            $('#editItemsEmpty').addClass('d-none');
+            $('#manageItemsEmpty').addClass('d-none');
         }
     }
 
-    function saveEditItems() {
+    function saveManageItems() {
         var items = [];
-        $('#editItemsBody tr').each(function() {
+        $('#manageItemsBody tr').each(function() {
             var eqCode = $(this).data('eq');
             var qty = parseInt($(this).find('input[type="number"]').val()) || 1;
             items.push({ equipment_Code: String(eqCode), Qty: String(qty) });
@@ -553,109 +604,10 @@ $canEdit = $canEditAsOwner || $canEditAsAdmin;
             data: { onum: onum, items: JSON.stringify(items) },
             success: function(data) {
                 if (data.status === 'success') {
-                    $('#editItemsModal').modal('hide');
+                    $('#manageItemsModal').modal('hide');
                     Swal.fire({
                         position: "center",
-                        title: "บันทึกการแก้ไขแล้ว",
-                        icon: "success",
-                        showConfirmButton: false,
-                        timer: 1000
-                    }).then(() => { window.location.reload(); });
-                } else {
-                    Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถบันทึกได้', 'error');
-                }
-            },
-            error: function() {
-                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
-            }
-        });
-    }
-
-    // ==================== ADD ITEM MODAL ====================
-    var selectedEquipment = null;
-
-    function openAddItemModal() {
-        selectedEquipment = null;
-        $('#addItemSelect').val(null).trigger('change');
-        $('#addItemDetail').addClass('d-none');
-        $('#btnConfirmAddItem').prop('disabled', true);
-        $('#addItemQty').val(1);
-
-        $('#addItemModal').modal('show');
-
-        // Initialize Select2 inside modal
-        setTimeout(function() {
-            $('#addItemSelect').select2({
-                dropdownParent: $('#addItemModal'),
-                width: '100%',
-                placeholder: 'พิมพ์รหัสหรือชื่อสินค้า...',
-                allowClear: true,
-                minimumInputLength: 1,
-                ajax: {
-                    url: 'php_search_equipment.php',
-                    dataType: 'json',
-                    delay: 300,
-                    data: function(params) {
-                        return { term: params.term };
-                    },
-                    processResults: function(data) {
-                        return data;
-                    }
-                }
-            }).on('select2:select', function(e) {
-                selectedEquipment = e.params.data;
-                $('#addItemName').text(selectedEquipment.name);
-                $('#addItemUnit').text(selectedEquipment.unit);
-                $('#addItemDetail').removeClass('d-none');
-                $('#btnConfirmAddItem').prop('disabled', false);
-            }).on('select2:clear', function() {
-                selectedEquipment = null;
-                $('#addItemDetail').addClass('d-none');
-                $('#btnConfirmAddItem').prop('disabled', true);
-            });
-        }, 200);
-    }
-
-    function confirmAddItem() {
-        if (!selectedEquipment) return;
-
-        var qty = parseInt($('#addItemQty').val()) || 1;
-        if (qty < 1) qty = 1;
-
-        // Check if item already exists in current items
-        var exists = false;
-        currentItems.forEach(function(item) {
-            if (String(item.equipment_Code) === String(selectedEquipment.id)) {
-                exists = true;
-                item.Qty = String(parseInt(item.Qty) + qty);
-            }
-        });
-
-        if (!exists) {
-            currentItems.push({
-                equipment_Code: String(selectedEquipment.id),
-                Qty: String(qty),
-                Q_true: String(qty)
-            });
-        }
-
-        // Build items for save
-        var items = [];
-        currentItems.forEach(function(item) {
-            items.push({ equipment_Code: String(item.equipment_Code), Qty: String(item.Qty) });
-        });
-
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "php_edit_order_items.php",
-            data: { onum: onum, items: JSON.stringify(items) },
-            success: function(data) {
-                if (data.status === 'success') {
-                    $('#addItemModal').modal('hide');
-                    Swal.fire({
-                        position: "center",
-                        title: exists ? "เพิ่มจำนวนแล้ว" : "เพิ่มรายการแล้ว",
+                        title: "บันทึกแล้ว",
                         icon: "success",
                         showConfirmButton: false,
                         timer: 1000

@@ -136,7 +136,7 @@ $cartCount = count($cartRows);
                                 ?>
                                     <tr>
                                         <td class="text-center">
-                                            <span class="badge bg-light text-secondary border" id="equipment_Code<?php echo $rowTb['equipment_ID'] ?>">
+                                            <span class="badge bg-light text-secondary border fs-5" id="equipment_Code<?php echo $rowTb['equipment_ID'] ?>">
                                                 <?php echo $rowTb['equipment_Code']; ?>
                                             </span>
                                         </td>
@@ -178,15 +178,15 @@ $cartCount = count($cartRows);
                                         <th width="40"></th>
                                     </tr>
                                 </thead>
-                                <tbody id="requestedItems" class="text-nowrap">
+                                <tbody id="requestedItems">
                                     <?php foreach ($cartRows as $rowCart): ?>
                                         <tr>
-                                            <td class="ps-3 fw-semibold small"><?php echo $rowCart['equipment_Name'] ?></td>
+                                            <td class="ps-3 fw-semibold small" style="max-width: 200px"><?php echo $rowCart['equipment_Name'] ?></td>
                                             <td>
-                                                <div class="input-group justify-content-center">
-                                                    <button class="btn btn-outline-secondary rounded-start-pill" onclick="editQty('<?php echo $rowCart['equipment_Code']; ?>','subtract')"><i class="bi bi-dash"></i></button>
-                                                    <input type="text" id="qty_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty']; ?>" class="form-control text-center border-secondary" style="max-width:70px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');" onchange="editQtyManual('<?php echo $rowCart['equipment_Code']; ?>')">
-                                                    <button class="btn btn-outline-secondary rounded-end-pill" onclick="editQty('<?php echo $rowCart['equipment_Code']; ?>','add')"><i class="bi bi-plus"></i></button>
+                                                <div class="d-flex align-items-center justify-content-center gap-1" style="flex-wrap:nowrap">
+                                                    <button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:30px;height:30px;padding:0;" onclick="editQty('<?php echo $rowCart['equipment_Code']; ?>','subtract')"><i class="bi bi-dash"></i></button>
+                                                    <input type="text" id="qty_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty']; ?>" class="form-control form-control-sm text-center border-secondary fw-semibold" style="width:50px;min-width:50px;max-width:50px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');" onchange="editQtyManual('<?php echo $rowCart['equipment_Code']; ?>')">
+                                                    <button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:30px;height:30px;padding:0;" onclick="editQty('<?php echo $rowCart['equipment_Code']; ?>','add')"><i class="bi bi-plus"></i></button>
                                                 </div>
                                             </td>
                                             <td class="text-center"><span class="text-muted small"><?php echo $rowCart['unit'] ?></span></td>
@@ -291,10 +291,10 @@ $cartCount = count($cartRows);
                                     <tr>
                                         <td class="ps-3 fw-semibold small"><?php echo $rowCart['equipment_Name'] ?></td>
                                         <td>
-                                            <div class="input-group input-group-sm justify-content-center">
-                                                <button class="btn btn-outline-secondary rounded-start-pill" onclick="editQty_M('<?php echo $rowCart['equipment_Code']; ?>','subtract')"><i class="bi bi-dash"></i></button>
-                                                <input type="text" id="qtym_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty'] ?>" class="form-control text-center border-secondary" style="max-width:70px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                                <button class="btn btn-outline-secondary rounded-end-pill" onclick="editQty_M('<?php echo $rowCart['equipment_Code']; ?>','add')"><i class="bi bi-plus"></i></button>
+                                            <div class="d-flex align-items-center justify-content-center gap-1" style="flex-wrap:nowrap">
+                                                <button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:28px;height:28px;padding:0;" onclick="editQty_M('<?php echo $rowCart['equipment_Code']; ?>','subtract')"><i class="bi bi-dash"></i></button>
+                                                <input type="text" id="qtym_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty'] ?>" class="form-control form-control-sm text-center border-secondary fw-semibold" style="width:50px;min-width:50px;max-width:50px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                                <button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:28px;height:28px;padding:0;" onclick="editQty_M('<?php echo $rowCart['equipment_Code']; ?>','add')"><i class="bi bi-plus"></i></button>
                                             </div>
                                         </td>
                                         <td class="text-center"><span class="text-muted small"><?php echo $rowCart['unit'] ?></span></td>

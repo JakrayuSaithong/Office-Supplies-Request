@@ -233,7 +233,7 @@ if (in_array($_SESSION['employee_ID'], $arrayPermis)) {
                                             <div class="btn btn-sm btn-secondary" onclick="editQty('<?php echo $rowCart['equipment_Code']; ?>','subtract')">
                                                 <i class="bi bi-dash-circle-fill"></i>
                                             </div>
-                                            <input type="text" id="qty_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty']; ?>" class="form-control border border-0 text-center" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                            <input type="text" id="qty_<?php echo $rowCart['equipment_Code']; ?>" value="<?php echo $rowCart['Qty']; ?>" class="form-control border border-0 text-center" oninput="this.value = this.value.replace(/[^0-9]/g, '');" onchange="editQtyManual('<?php echo $rowCart['equipment_Code']; ?>')">
                                             <div class="btn btn-sm btn-secondary" onclick="editQty('<?php echo $rowCart['equipment_Code']; ?>','add')">
                                                 <i class="bi bi-plus-circle-fill"></i>
                                             </div>
@@ -418,6 +418,15 @@ if (in_array($_SESSION['employee_ID'], $arrayPermis)) {
         // $("#test_" + equipment_Code).val(currentQty);
 
         updateQty(equipment_Code, currentQty, "<?php echo $_SESSION['employee_ID']; ?>");
+    }
+
+    function editQtyManual(equipment_Code) {
+        var val = parseInt($("#qty_" + equipment_Code).val());
+        if (isNaN(val) || val <= 0) {
+            val = 1;
+            $("#qty_" + equipment_Code).val(1);
+        }
+        updateQty(equipment_Code, val, "<?php echo $_SESSION['employee_ID']; ?>");
     }
 
     function editQty_M(equipment_Code, action) {

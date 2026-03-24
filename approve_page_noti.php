@@ -66,7 +66,7 @@ $countP = countOrders_all();
                                     // ], JSON_UNESCAPED_UNICODE));
                                     // $titelnoti = "แจ้งเตือนขอเบิกของ (". $row_P['order_Number'] .")";
                                     // $message = $row_P['order_Name'] . "\nได้สร้างเอกสารเพื่อขออนุมัติเบิกของ" . "\nเมื่อ " . date_format($row_P['order_date'], "Y-m-d H:m:s");
-                                    // $urlnoti = "https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $row_P['order_ID'] ."&page=approve_page&onum=". $row_P['order_Number'] ."&DataE=". $DataE;
+                                    // $urlnoti = "https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $row_P['order_ID'] ."&page=approve_page&onum=". $row_P['order_Number'] ."&DataE=". $DataE;
                                 ?>
                                     <tr class="text-center text-nowrap">
                                         <td><?php echo $row_P['order_Number']; ?></td>

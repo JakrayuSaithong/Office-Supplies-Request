@@ -94,7 +94,7 @@ try {
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -125,7 +125,7 @@ try {
                     $post = [
                         'notify_type'    =>    'msg',
                         'TOWEB'            =>    'TOWEB',
-                        'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
+                        'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                         'notify_title'    =>    $titelnoti,
                         'notify_msg'    =>    $message,
                         'user_username'    =>    $value,
@@ -157,7 +157,7 @@ try {
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -187,7 +187,7 @@ try {
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -217,7 +217,7 @@ try {
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -247,7 +247,7 @@ try {
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],

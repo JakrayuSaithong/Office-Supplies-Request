@@ -26,7 +26,7 @@
     $post = [
         'notify_type'    =>    'msg',
         'TOWEB'            =>    'TOWEB',
-        'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_ID ."&page=approve_page&onum=". $order_Number ."&DataE=". $DataE),
+        'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_ID ."&page=approve_page&onum=". $order_Number ."&DataE=". $DataE),
         'notify_title'    =>    $titelnoti,
         'notify_msg'    =>    $message,
         'user_username'    =>    $approved_by,

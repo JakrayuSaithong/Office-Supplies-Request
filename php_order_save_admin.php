@@ -85,7 +85,7 @@ if ($stmtDetail) {
             $post = [
                 'notify_type'       => 'msg',
                 'TOWEB'             => 'TOWEB',
-                'url'               => base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=" . $rowOrder['order_ID'] . "&page=approve_page&onum=" . $rowOrder['order_Number'] . "&DataE=" . $DataE),
+                'url'               => base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=" . $rowOrder['order_ID'] . "&page=approve_page&onum=" . $rowOrder['order_Number'] . "&DataE=" . $DataE),
                 'notify_title'      => $titelnoti,
                 'notify_msg'        => $message,
                 'user_username'     => $employee_ID,

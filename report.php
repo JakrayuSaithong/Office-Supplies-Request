@@ -453,7 +453,7 @@ while($row_p = sqlsrv_fetch_array($result_p, SQLSRV_FETCH_ASSOC)){
                 return false;
             }
 
-            var url = 'https://it.asefa.co.th/withdraw-test/report.php' + '?report_Type=' + report_Type + '&report_Date=' + report_Date + '&report_Date_End=' + report_Date_End + '&report_division=' + report_division;
+            var url = 'https://it.asefa.co.th/withdraw/report.php' + '?report_Type=' + report_Type + '&report_Date=' + report_Date + '&report_Date_End=' + report_Date_End + '&report_division=' + report_division;
             window.location.href = url;
         });
 

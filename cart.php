@@ -408,6 +408,11 @@ $cartCount = count($cartRows);
             dataType: "json",
             url: "php_update_quantity.php",
             data: { equipment_Code: equipment_Code, newQty: newQty, employee_ID: empID },
+            success: function(data) {
+                if (data.status === 'success') {
+                    window.location.reload();
+                }
+            },
             error: function(xhr, status, error) { console.error("AJAX error: " + error); }
         });
     }

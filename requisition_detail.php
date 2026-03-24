@@ -391,7 +391,7 @@ $canEdit = $canEditAsOwner || $canEditAsAdmin;
             datatype: "json",
             data: { eq_Code: eq_Code, q_true: q_true, onum: onum },
             success: function(data) {
-                console.log(data)
+                window.location.reload();
             }
         })
     }

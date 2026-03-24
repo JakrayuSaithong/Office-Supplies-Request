@@ -36,9 +36,28 @@
             type: 'POST',
             dataType: 'json',
             data: Data,
+            processData: false,
+            contentType: false,
             success: function(res) {
-                alert(res.status);
-                console.log(res);
+                if (res.status === 'success') {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "เพิ่มลงตะกร้าแล้ว",
+                        showConfirmButton: false,
+                        timer: 1000
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        position: "center",
+                        icon: "info",
+                        title: res.status,
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                }
             }
         });
     }

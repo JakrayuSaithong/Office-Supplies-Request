@@ -16,13 +16,14 @@ if(isset($_GET['report_Type']) && isset($_GET['report_Date'])){
         $sql = "WHERE tbl_orders.status = '1' AND approval = 'A' AND receiving = 'Y' AND manager_status = '3' AND receiving_date >= '$report_Date' AND receiving_date <= '$report_Date_End'";
     }
 
-    $sql_report = "SELECT 
-        tbl_orders.order_Number, 
-        tbl_orders.order_Name, 
-        tbl_orders.approved_date, 
+    $sql_report = "SELECT
+        tbl_orders.order_Number,
+        tbl_orders.order_Name,
+        tbl_orders.approved_date,
         tbl_orders.employee_ID,
         tbl_orders.receiving_date,
         tbl_orders.approved_date,
+        ISNULL(tbl_orders.note, 0) as note,
         tbl_order_detail.order_detail
         FROM tbl_orders
         INNER JOIN tbl_order_detail
@@ -32,13 +33,14 @@ if(isset($_GET['report_Type']) && isset($_GET['report_Date'])){
 else{
     $report_Date = date("Y-m");
 
-    $sql_report = "SELECT 
-    tbl_orders.order_Number, 
-    tbl_orders.order_Name, 
-    tbl_orders.approved_date, 
+    $sql_report = "SELECT
+    tbl_orders.order_Number,
+    tbl_orders.order_Name,
+    tbl_orders.approved_date,
     tbl_orders.employee_ID,
     tbl_orders.receiving_date,
     tbl_orders.approved_date,
+    ISNULL(tbl_orders.note, 0) as note,
     tbl_order_detail.order_detail
     FROM tbl_orders
     INNER JOIN tbl_order_detail
@@ -193,7 +195,7 @@ while($row_p = sqlsrv_fetch_array($result_p, SQLSRV_FETCH_ASSOC)){
                         ?>
                         <tr>
                             <td style="text-align: left;"><?php echo date_format($v['receiving_date'], "Y-m-d") == '1900-01-01' ? date_format($v['approved_date'], "Y-m-d") : date_format($v['receiving_date'], "Y-m-d") ; ?></td>
-                            <td style="text-align: left;"><?php echo ShowDataEquipmentID($v1['equipment_Code'])['equipment_Code']; ?></td>
+                            <td style="text-align: left;"><?php echo ShowDataEquipmentID($v1['equipment_Code'])['equipment_Code']; echo (!empty($v['note'])) ? ' (เบิกเพิ่มเติม)' : ''; ?></td>
                             <td style="text-align: left;"><?php echo ShowDataEquipmentID($v1['equipment_Code'])['equipment_Name'] ?></td>
                             <td style="text-align: left;"><?php echo $v1['Q_true'] ?></td>
                             <td style="text-align: left;"><?php echo ShowDataEquipmentID($v1['equipment_Code'])['unit'] ?></td>
@@ -230,7 +232,7 @@ while($row_p = sqlsrv_fetch_array($result_p, SQLSRV_FETCH_ASSOC)){
                                         }
                                         $array_count[$v1['equipment_Code']]['Qty'] += $v1['Q_true'];
                                         $array_count[$v1['equipment_Code']]['Division'][$k] = $v['DivisionName'];
-                                        $array_count[$v1['equipment_Code']]['Date'][$k] = $v['order_Number'] . " - " . date_format($v['approved_date'], "Y-m-d");
+                                        $array_count[$v1['equipment_Code']]['Date'][$k] = $v['order_Number'] . " - " . date_format($v['approved_date'], "Y-m-d") . (!empty($v['note']) ? ' (เบิกเพิ่มเติม)' : '');
                                         $array_count[$v1['equipment_Code']]['Qty_'. $k] += $v1['Q_true'];
                                     }
                                 }
@@ -451,7 +453,7 @@ while($row_p = sqlsrv_fetch_array($result_p, SQLSRV_FETCH_ASSOC)){
                 return false;
             }
 
-            var url = 'https://it.asefa.co.th/withdraw/report.php' + '?report_Type=' + report_Type + '&report_Date=' + report_Date + '&report_Date_End=' + report_Date_End + '&report_division=' + report_division;
+            var url = 'https://it.asefa.co.th/withdraw-test/report.php' + '?report_Type=' + report_Type + '&report_Date=' + report_Date + '&report_Date_End=' + report_Date_End + '&report_division=' + report_division;
             window.location.href = url;
         });
 

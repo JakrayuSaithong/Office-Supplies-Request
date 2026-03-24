@@ -4,6 +4,7 @@
     header("Content-type: application/json; charset=utf-8");
     session_start();
     include_once('condb.php');
+    include_once('function.php');
 
     $order_ID = $_POST['order_ID'];
     $order_Number = $_POST['order_Number'];
@@ -11,7 +12,13 @@
     $order_date = $_POST['order_date'];
     $approved_by = $_POST['approved_by'];
 
-    $codetoken =  Get_Token($approved_by);
+    // $codetoken =  Get_Token($approved_by);
+
+    $DataE = encryptIt(json_encode([
+        "auth_user_name" => $approved_by,
+        "date_U" => time(),
+        "FromApp" => "Noti"
+    ], JSON_UNESCAPED_UNICODE));
 
     $titelnoti = "แจ้งเตือนขอเบิกของ (". $order_Number .")";
     $message = $order_Name . "\nได้สร้างเอกสารเพื่อขออนุมัติเบิกของ" . "\nเมื่อ " . $order_date;
@@ -19,7 +26,7 @@
     $post = [
         'notify_type'    =>    'msg',
         'TOWEB'            =>    'TOWEB',
-        'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_ID ."&page=approve_page&onum=". $order_Number ."&token=". $codetoken['Users_Token']),
+        'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_ID ."&page=approve_page&onum=". $order_Number ."&DataE=". $DataE),
         'notify_title'    =>    $titelnoti,
         'notify_msg'    =>    $message,
         'user_username'    =>    $approved_by,

@@ -3,6 +3,8 @@ session_start();
 include_once('condb.php');
 
 $tab = isset($_POST['tab']) ? $_POST['tab'] : '';
+$filterMonth = isset($_POST['filterMonth']) ? $_POST['filterMonth'] : '';
+$filterYear = isset($_POST['filterYear']) ? $_POST['filterYear'] : '';
 
 // Map tab to manager_status and specific conditions
 $whereExtra = "";
@@ -18,15 +20,27 @@ switch ($tab) {
         break;
     case '3':
         $whereExtra = "AND receiving = 'Y' AND manager_status = '3'";
+        // If filter provided, use it; otherwise default to last 2 months
+        if ($filterMonth !== '' && $filterYear !== '') {
+            $fMonth = intval($filterMonth);
+            $fYear = intval($filterYear);
+            $startDate = sprintf("%04d-%02d-01", $fYear, $fMonth);
+            // Last day of the month
+            $endDate = date("Y-m-t", strtotime($startDate));
+            $whereExtra .= " AND receiving_date >= '$startDate' AND receiving_date <= '$endDate 23:59:59'";
+        } else {
+            $twoMonthsAgo = date("Y-m-d", strtotime("-2 months"));
+            $whereExtra .= " AND receiving_date >= '$twoMonthsAgo'";
+        }
         break;
     default:
         echo json_encode(['status' => 'error', 'message' => 'Invalid tab']);
         exit;
 }
 
-$sql = "SELECT order_ID, order_Number, order_Name, approved_date, order_date, approval, receiving, employee_ID, manager_status
-        FROM tbl_orders 
-        WHERE status = '1' AND approval = 'A' $whereExtra 
+$sql = "SELECT order_ID, order_Number, order_Name, approved_date, order_date, approval, receiving, employee_ID, manager_status, ISNULL(note, 0) as note
+        FROM tbl_orders
+        WHERE status = '1' AND approval = 'A' $whereExtra
         ORDER BY order_date DESC";
 
 $result = sqlsrv_query($conn, $sql);
@@ -35,6 +49,9 @@ $html = '';
 while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
     $divisionData = ShowNameDivision($row['employee_ID']);
     $divisionText = ($divisionData['site_f_1144'] ?? '') . " - " . ($divisionData['site_f_1145'] ?? '');
+    if ($row['note'] == 1) {
+        $divisionText .= ' <span class="badge bg-info text-white ms-1">เบิกเพิ่มเติม</span>';
+    }
     
     // Use output buffering to capture the echo-based receiving() from condb.php
     ob_start();
@@ -48,7 +65,7 @@ while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
     $html .= '<tr class="text-center text-nowrap">';
     $html .= '<td>' . htmlspecialchars($row['order_Number']) . '</td>';
     $html .= '<td>' . $statusBadge . '</td>';
-    $html .= '<td class="text-start">' . htmlspecialchars($divisionText) . '</td>';
+    $html .= '<td class="text-start">' . $divisionText . '</td>';
     $html .= '<td class="text-start">' . htmlspecialchars($row['order_Name']) . '</td>';
     $html .= '<td>' . $orderDate . '</td>';
 

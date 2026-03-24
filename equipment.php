@@ -51,18 +51,26 @@ while ($rowCl = sqlsrv_fetch_array($resultCl, SQLSRV_FETCH_ASSOC)) {
                         $sqlTb = "SELECT tbl_equipments.equipment_ID,tbl_equipments.equipment_Code,tbl_equipments.equipment_Name,
                         tbl_equipments.add_by,tbl_equipments.add_date,
                         tbl_equipments.unit,tbl_catalogs.catalog_Name ,tbl_catalogs.catalog_ID,
-                        tbl_equipments.edit_by,tbl_equipments.edit_date
+                        tbl_equipments.edit_by,tbl_equipments.edit_date,
+                        tbl_equipments.status as eq_status
                         FROM tbl_equipments
-                        INNER JOIN tbl_catalogs 
-                        ON tbl_equipments.catalog_ID = tbl_catalogs.catalog_ID 
-                        WHERE tbl_equipments.status = '1' 
+                        INNER JOIN tbl_catalogs
+                        ON tbl_equipments.catalog_ID = tbl_catalogs.catalog_ID
+                        WHERE tbl_catalogs.status = '1'
                         ORDER BY tbl_equipments.add_date DESC";
                         $resultTb = sqlsrv_query($conn, $sqlTb);
                         ?>
-                        <?php while ($rowTb = sqlsrv_fetch_array($resultTb, SQLSRV_FETCH_ASSOC)) { ?>
-                            <tr class="text-nowrap text-center">
+                        <?php while ($rowTb = sqlsrv_fetch_array($resultTb, SQLSRV_FETCH_ASSOC)) {
+                            $isDisabled = ($rowTb['eq_status'] != '1');
+                        ?>
+                            <tr class="text-nowrap text-center <?php echo $isDisabled ? 'table-secondary opacity-75' : ''; ?>">
                                 <td><?php echo $rowTb['equipment_Code']; ?></td>
-                                <td class="text-start"><?php echo $rowTb['equipment_Name']; ?></td>
+                                <td class="text-start">
+                                    <?php echo $rowTb['equipment_Name']; ?>
+                                    <?php if ($isDisabled): ?>
+                                        <span class="badge bg-danger ms-1">ปิดใช้งาน</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo $rowTb['unit']; ?></td>
                                 <!-- <td><?php echo $rowTb['category_Name']; ?></td> -->
                                 <td><?php echo $rowTb['catalog_Name']; ?></td>

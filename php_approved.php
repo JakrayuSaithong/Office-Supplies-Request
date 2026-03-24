@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once("condb.php");
+include_once('function.php');
 
 $receiving_by = $_POST['emp_ID'];
 $order_ID = $_POST['order_ID'];
@@ -17,13 +18,29 @@ if($approved_by == '' || $approved_by == null){
 
 try {
     if ($status == "A") {
-        $sql = "UPDATE tbl_orders SET 
-                approved_date = '$approved_date',
-                approval = '$status'
-                WHERE order_ID = '$order_ID'";
-    } 
+        // Check if this order has note=1 (เบิกเพิ่มเติม) — skip to รอแจกของ (manager_status=2)
+        $sqlCheckNote = "SELECT ISNULL(note, 0) as note FROM tbl_orders WHERE order_ID = '$order_ID'";
+        $resultNote = sqlsrv_query($conn, $sqlCheckNote);
+        $rowNote = sqlsrv_fetch_array($resultNote, SQLSRV_FETCH_ASSOC);
+        $isNote = ($rowNote && $rowNote['note'] == 1);
+
+        if ($isNote) {
+            $sql = "UPDATE tbl_orders SET
+                    approved_date = '$approved_date',
+                    approval = '$status',
+                    manager_approve = '$approved_by',
+                    manager_status = '2',
+                    manager_date_approve = '$approved_date'
+                    WHERE order_ID = '$order_ID'";
+        } else {
+            $sql = "UPDATE tbl_orders SET
+                    approved_date = '$approved_date',
+                    approval = '$status'
+                    WHERE order_ID = '$order_ID'";
+        }
+    }
     elseif ($status == "C") {
-        $sql = "UPDATE tbl_orders SET 
+        $sql = "UPDATE tbl_orders SET
                 approved_date = '$approved_date',
                 approval = '$status'
                 WHERE order_ID = '$order_ID'";
@@ -53,6 +70,8 @@ try {
     $result = sqlsrv_query($conn, $sql);
 
     if($result) {
+        // Send notification — wrapped in try-catch so DB success is always returned
+        try {
         $order_Data = Orders_Number($order_ID);
         $codetoken =  Get_Token($order_Data['employee_ID']);
 
@@ -66,10 +85,16 @@ try {
             $titelnoti = "แจ้งเตือนขอเบิกของ (". $order_Data['order_Number'] .")";
             $message = "เลขที่เอกสาร ". $order_Data['order_Number'] ."\nได้รับอนุมัติเรียบร้อยแล้ว" . "\nเมื่อ " . $approved_date;
 
+            $DataE = encryptIt(json_encode([
+                "auth_user_name" => $order_Data['employee_ID'],
+                "date_U" => time(),
+                "FromApp" => "Noti"
+            ], JSON_UNESCAPED_UNICODE));
+
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&token=". $codetoken['Users_Token']),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -91,10 +116,16 @@ try {
                 $message = "เลขที่เอกสาร ". $order_Data['order_Number'] ."\nได้รับอนุมัติให้สามารถเบิกของได้" . "\nเมื่อ " . $approved_date;
 
                 foreach($arrayPermis as $key => $value){
+                    $DataE = encryptIt(json_encode([
+                        "auth_user_name" => $value,
+                        "date_U" => time(),
+                        "FromApp" => "Noti"
+                    ], JSON_UNESCAPED_UNICODE));
+
                     $post = [
                         'notify_type'    =>    'msg',
                         'TOWEB'            =>    'TOWEB',
-                        'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&token=". $codetoken['Users_Token']),
+                        'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                         'notify_title'    =>    $titelnoti,
                         'notify_msg'    =>    $message,
                         'user_username'    =>    $value,
@@ -117,10 +148,16 @@ try {
             $titelnoti = "แจ้งเตือนขอเบิกของ (". $order_Data['order_Number'] .")";
             $message = "เลขที่เอกสาร ". $order_Data['order_Number'] ."\nไม่อนุมัติให้สามารถเบิกของได้" . "\nเมื่อ " . $approved_date;
 
+            $DataE = encryptIt(json_encode([
+                "auth_user_name" => $order_Data['employee_ID'],
+                "date_U" => time(),
+                "FromApp" => "Noti"
+            ], JSON_UNESCAPED_UNICODE));
+
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&token=". $codetoken['Users_Token']),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -141,10 +178,16 @@ try {
             $titelnoti = "แจ้งเตือนขอเบิกของ (". $order_Data['order_Number'] .")";
             $message = "เลขที่เอกสาร ". $order_Data['order_Number'] ."\nได้รับการสั่งซื้อเรียบร้อยแล้ว" . "\nเมื่อ " . $approved_date;
 
+            $DataE = encryptIt(json_encode([
+                "auth_user_name" => $order_Data['employee_ID'],
+                "date_U" => time(),
+                "FromApp" => "Noti"
+            ], JSON_UNESCAPED_UNICODE));
+
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&token=". $codetoken['Users_Token']),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -165,10 +208,16 @@ try {
             $titelnoti = "แจ้งเตือนขอเบิกของ (". $order_Data['order_Number'] .")";
             $message = "เลขที่เอกสาร ". $order_Data['order_Number'] ."\nของเบิกมาส่งเรียบร้อยแล้ว" . "\nสามารถติดต่อรับของเบิกได้ที่ HR";
 
+            $DataE = encryptIt(json_encode([
+                "auth_user_name" => $order_Data['employee_ID'],
+                "date_U" => time(),
+                "FromApp" => "Noti"
+            ], JSON_UNESCAPED_UNICODE));
+
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&token=". $codetoken['Users_Token']),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -189,10 +238,16 @@ try {
             $titelnoti = "แจ้งเตือนขอเบิกของ (". $order_Data['order_Number'] .")";
             $message = "เลขที่เอกสาร ". $order_Data['order_Number'] ."\nได้รับของเบิกเรียบร้อยแล้ว" . "\nเมื่อ ". $approved_date;
 
+            $DataE = encryptIt(json_encode([
+                "auth_user_name" => $order_Data['employee_ID'],
+                "date_U" => time(),
+                "FromApp" => "Noti"
+            ], JSON_UNESCAPED_UNICODE));
+
             $post = [
                 'notify_type'    =>    'msg',
                 'TOWEB'            =>    'TOWEB',
-                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&token=". $codetoken['Users_Token']),
+                'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $order_Data['order_ID'] ."&page=approve_page&onum=". $order_Data['order_Number'] ."&DataE=". $DataE),
                 'notify_title'    =>    $titelnoti,
                 'notify_msg'    =>    $message,
                 'user_username'    =>    $order_Data['employee_ID'],
@@ -210,13 +265,18 @@ try {
             curl_close($ch);
         }
         
+        } catch (\Throwable $notiErr) {
+            // Notification failed but DB update succeeded — log and continue
+            error_log("Notification error: " . $notiErr->getMessage(), 0);
+        }
+
         echo json_encode(array('status' => 'success', 'stt_app' => $status ,'chk' => $sql));
     } else {
         $errors = sqlsrv_errors();
         error_log(print_r($errors, true), 0);
         echo json_encode(array('status' => 'error', 'message' => 'Error updating order status'));
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     error_log($e->getMessage(), 0);
     echo json_encode(array('status' => 'error', 'message' => 'Exception caught while updating order status'));
 }

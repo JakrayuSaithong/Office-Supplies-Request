@@ -283,11 +283,8 @@ $countC = getCountByStatus('C', $employee_ID);
                         });
                     },
                     success: function(data) {
-                        // console.log(data);
                         Swal.close();
                         if (data.status === 'success') {
-                            // console.log(data.chk)
-                            // console.log("Item added to cart: " + "อนุมัติแล้ว")
                             if (data.stt_app == 'A') {
                                 Swal.fire({
                                     position: "center",
@@ -323,15 +320,24 @@ $countC = getCountByStatus('C', $employee_ID);
                                 });
                             }
                         } else {
-                            console.error("Error adding item to cart: " + data.message),
-                                Swal.fire({
-                                    position: "center",
-                                    icon: "error",
-                                    title: data.message,
-                                    showConfirmButton: false,
-                                    timer: 800
-                                });
+                            console.error("Error: " + data.message);
+                            Swal.fire({
+                                position: "center",
+                                icon: "error",
+                                title: data.message,
+                                showConfirmButton: false,
+                                timer: 800
+                            });
                         }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: "error",
+                            title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
+                            text: "กรุณาลองใหม่อีกครั้ง",
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     }
 
                 })

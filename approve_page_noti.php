@@ -59,10 +59,14 @@ $countP = countOrders_all();
                                 WHERE status = '1' AND approval = 'P' AND manager_status = '0' ORDER BY order_date DESC";
                                 $result_P = sqlsrv_query($conn, $sql_P);
                                 while ($row_P = sqlsrv_fetch_array($result_P, SQLSRV_FETCH_ASSOC)) {
-                                    // $codetoken =  Get_Token($row_P['approved_by']);
+                                    // $DataE = encryptIt(json_encode([
+                                    //     "auth_user_name" => $row_P['approved_by'],
+                                    //     "date_U" => time(),
+                                    //     "FromApp" => "Noti"
+                                    // ], JSON_UNESCAPED_UNICODE));
                                     // $titelnoti = "แจ้งเตือนขอเบิกของ (". $row_P['order_Number'] .")";
                                     // $message = $row_P['order_Name'] . "\nได้สร้างเอกสารเพื่อขออนุมัติเบิกของ" . "\nเมื่อ " . date_format($row_P['order_date'], "Y-m-d H:m:s");
-                                    // $urlnoti = "https://it.asefa.co.th/withdraw/requisition_detail.php?oid=". $row_P['order_ID'] ."&page=approve_page&onum=". $row_P['order_Number'] ."&token=". $codetoken['Users_Token'];
+                                    // $urlnoti = "https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=". $row_P['order_ID'] ."&page=approve_page&onum=". $row_P['order_Number'] ."&DataE=". $DataE;
                                 ?>
                                     <tr class="text-center text-nowrap">
                                         <td><?php echo $row_P['order_Number']; ?></td>

@@ -24,6 +24,16 @@ $countA = getCountByStatus_Admin('0');
 $countP = getCountByStatus_Admin('1');
 $countC = getCountByStatus_Admin('2');
 $countS = getCountByStatus_Admin('3');
+
+// Fetch employee list for admin requisition modal
+$sqlEmpList = "SELECT site_f_366 as f_name, site_f_365 as id_employee
+    FROM work_progress_010 WHERE site_f_3005 = '600' AND (site_f_398 = '0000-00-00' OR site_f_398 > CURRENT_DATE())
+    ORDER BY site_f_366 ASC";
+$resultEmpList = mysqli_query($connmy, $sqlEmpList);
+$empList = [];
+while ($empRow = mysqli_fetch_assoc($resultEmpList)) {
+    $empList[] = $empRow;
+}
 ?>
 <?php include('sidebar.php'); ?>
 <div class="main">
@@ -65,10 +75,11 @@ $countS = getCountByStatus_Admin('3');
         </div>
     </div>
     <div class="d-flex flex-column me-4 ms-4">
-        <div class="nav nav-tabs border-0" id="nav-tab" role="tablist">
-            <button class="nav-link bg-white text-warning active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" data-tab="0" type="button" role="tab" aria-controls="nav-home" aria-selected="true"> 
-                <i class="fa-solid fa-basket-shopping" style="font-size: 18px;"></i> <span class="d-none d-md-inline">รอสั่งซื้อ</span>
-            </button>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <div class="nav nav-tabs border-0" id="nav-tab" role="tablist">
+                <button class="nav-link bg-white text-warning active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" data-tab="0" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+                    <i class="fa-solid fa-basket-shopping" style="font-size: 18px;"></i> <span class="d-none d-md-inline">รอสั่งซื้อ</span>
+                </button>
             <button class="nav-link bg-white text-info" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" data-tab="1" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
                 <i class="fa-solid fa-truck-fast" style="font-size: 18px;"></i> <span class="d-none d-md-inline">รอของส่ง</span>
             </button>
@@ -77,6 +88,10 @@ $countS = getCountByStatus_Admin('3');
             </button>
             <button class="nav-link bg-white text-success" id="nav-success-tab" data-bs-toggle="tab" data-bs-target="#nav-success" data-tab="3" type="button" role="tab" aria-controls="nav-success" aria-selected="false">
                 <i class="fa-solid fa-circle-check" style="font-size: 18px;"></i> <span class="d-none d-md-inline">แจกของแล้ว</span>
+            </button>
+            </div>
+            <button class="btn btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#adminReqModal">
+                <i class="fa-solid fa-plus me-1"></i> เบิกเพิ่มเติม
             </button>
         </div>
         <div class="card border-0 shadow-sm p-2 rounded-bottom rounded-0">
@@ -148,7 +163,39 @@ $countS = getCountByStatus_Admin('3');
 
                 <!-- Tab 3: แจกของแล้ว -->
                 <div class="tab-pane fade" id="nav-success" role="tabpanel" aria-labelledby="nav-success-tab" tabindex="0">
-                    <div class="table-responsive-xxl p-3">
+                    <div class="p-3 pb-0">
+                        <div class="d-flex align-items-end gap-2 flex-wrap mb-3">
+                            <div>
+                                <label class="form-label small text-muted mb-1">เดือน</label>
+                                <select id="filterMonth" class="form-select form-select-sm" style="width: 140px;">
+                                    <option value="">ล่าสุด 2 เดือน</option>
+                                    <?php
+                                    $thaiMonths = ['', 'มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+                                    for ($m = 1; $m <= 12; $m++): ?>
+                                        <option value="<?php echo $m; ?>"><?php echo $thaiMonths[$m]; ?></option>
+                                    <?php endfor; ?>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label small text-muted mb-1">ปี (พ.ศ.)</label>
+                                <select id="filterYear" class="form-select form-select-sm" style="width: 110px;">
+                                    <option value="">-</option>
+                                    <?php
+                                    $currentBE = date("Y") + 543;
+                                    for ($y = $currentBE; $y >= $currentBE - 3; $y--): ?>
+                                        <option value="<?php echo $y - 543; ?>"><?php echo $y; ?></option>
+                                    <?php endfor; ?>
+                                </select>
+                            </div>
+                            <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="filterTab3()">
+                                <i class="fa-solid fa-magnifying-glass me-1"></i> ค้นหา
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="resetFilterTab3()">
+                                <i class="fa-solid fa-rotate-left me-1"></i> ล่าสุด 2 เดือน
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive-xxl p-3 pt-0">
                         <table id="TableOder_SS" class="table table-hover table-borderless">
                             <thead>
                                 <tr class="text-nowrap text-center" style="border-bottom: 2px solid #dee2e6;">
@@ -173,6 +220,65 @@ $countS = getCountByStatus_Admin('3');
     </div>
 </div>
 </div>
+<!-- ===== Modal เบิกเพิ่มเติม (Admin) ===== -->
+<div class="modal fade" id="adminReqModal" tabindex="-1" aria-labelledby="adminReqModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header bg-primary bg-gradient text-white">
+                <h5 class="modal-title" id="adminReqModalLabel"><i class="fa-solid fa-plus me-2"></i>เบิกเพิ่มเติม</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- เลือกผู้เบิก -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="fa-solid fa-user me-1 text-muted"></i> ผู้เบิก</label>
+                    <select id="adminReqEmployee" class="form-control admin-req-select2">
+                        <option value="" selected>เลือกผู้เบิก</option>
+                        <?php foreach ($empList as $emp): ?>
+                            <option value="<?php echo $emp['id_employee']; ?>"><?php echo $emp['f_name']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- ค้นหาและเพิ่มรายการ -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="fa-solid fa-magnifying-glass me-1 text-muted"></i> ค้นหารายการของเบิก</label>
+                    <select id="adminReqEquipment" class="form-control admin-req-select2-eq">
+                        <option value="" selected>พิมพ์ค้นหารหัสหรือชื่ออุปกรณ์</option>
+                    </select>
+                </div>
+
+                <!-- ตารางรายการที่เลือก -->
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                            <tr style="border-bottom: 2px solid #dee2e6;">
+                                <th class="ps-3">รหัส</th>
+                                <th>รายการ</th>
+                                <th class="text-center" width="130">จำนวน</th>
+                                <th class="text-center" width="60">หน่วย</th>
+                                <th width="40"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminReqItems">
+                            <tr id="adminReqEmpty">
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="fa-solid fa-box-open fa-2x mb-2 opacity-25"></i>
+                                    <p class="mb-0">ยังไม่มีรายการ — ค้นหาและเลือกอุปกรณ์ด้านบน</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal"><i class="fa-solid fa-xmark me-1"></i> ปิด</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" id="btnAdminReqSave"><i class="fa-solid fa-paper-plane me-1"></i> บันทึกรายการเบิก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php include('footer.php'); ?>
 <script>
     // Track which tabs have been loaded
@@ -188,14 +294,19 @@ $countS = getCountByStatus_Admin('3');
         order: [[0, 'desc']]
     };
 
-    function loadTabData(tabIndex) {
-        if (loadedTabs[tabIndex]) return; // Already loaded
+    function loadTabData(tabIndex, extraData) {
+        if (loadedTabs[tabIndex] && !extraData) return; // Already loaded
+
+        var postData = { tab: tabIndex };
+        if (extraData) {
+            $.extend(postData, extraData);
+        }
 
         $.ajax({
             type: "POST",
             url: "php_load_tab_admin.php",
             dataType: "json",
-            data: { tab: tabIndex },
+            data: postData,
             success: function(data) {
                 if (data.status === 'success') {
                     $('#tbody_tab' + tabIndex).html(data.html);
@@ -342,14 +453,216 @@ $countS = getCountByStatus_Admin('3');
                                 timer: 800
                             });
                         }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: "error",
+                            title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
+                            text: "กรุณาลองใหม่อีกครั้ง",
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     }
                 })
             }
         });
     }
 
+    // ===== Tab 3 Filter =====
+    function filterTab3() {
+        var month = $('#filterMonth').val();
+        var year = $('#filterYear').val();
+        if (month && !year) {
+            Swal.fire('กรุณาเลือกปี', '', 'warning');
+            return;
+        }
+        // Force reload tab 3
+        loadedTabs['3'] = false;
+        var tableId = '#TableOder_SS';
+        if ($.fn.DataTable.isDataTable(tableId)) {
+            $(tableId).DataTable().destroy();
+        }
+        $('#tbody_tab3').html('<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
+        loadTabData('3', { filterMonth: month, filterYear: year });
+    }
+
+    function resetFilterTab3() {
+        $('#filterMonth').val('');
+        $('#filterYear').val('');
+        loadedTabs['3'] = false;
+        var tableId = '#TableOder_SS';
+        if ($.fn.DataTable.isDataTable(tableId)) {
+            $(tableId).DataTable().destroy();
+        }
+        $('#tbody_tab3').html('<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
+        loadTabData('3');
+    }
+
+    // ===== Admin Requisition Modal =====
+    var adminReqItemsList = []; // {id, code, name, unit, qty}
+
+    function adminReqRenderItems() {
+        var tbody = $('#adminReqItems');
+        tbody.empty();
+        if (adminReqItemsList.length === 0) {
+            tbody.html('<tr id="adminReqEmpty"><td colspan="5" class="text-center text-muted py-4"><i class="fa-solid fa-box-open fa-2x mb-2 opacity-25"></i><p class="mb-0">ยังไม่มีรายการ — ค้นหาและเลือกอุปกรณ์ด้านบน</p></td></tr>');
+            return;
+        }
+        adminReqItemsList.forEach(function(item, idx) {
+            var row = '<tr>' +
+                '<td class="ps-3"><span class="badge bg-light text-secondary border">' + item.code + '</span></td>' +
+                '<td class="fw-semibold small">' + item.name + '</td>' +
+                '<td><div class="d-flex align-items-center justify-content-center gap-1">' +
+                    '<button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:30px;height:30px;padding:0;" onclick="adminReqQty(' + idx + ',-1)"><i class="bi bi-dash"></i></button>' +
+                    '<input type="text" value="' + item.qty + '" class="form-control form-control-sm text-center border-secondary fw-semibold" style="width:50px;" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');" onchange="adminReqQtyManual(' + idx + ',this.value)" id="arq_' + idx + '">' +
+                    '<button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:30px;height:30px;padding:0;" onclick="adminReqQty(' + idx + ',1)"><i class="bi bi-plus"></i></button>' +
+                '</div></td>' +
+                '<td class="text-center"><span class="text-muted small">' + item.unit + '</span></td>' +
+                '<td><button class="btn btn-outline-danger btn-sm rounded-pill" onclick="adminReqRemove(' + idx + ')"><i class="bi bi-trash3"></i></button></td>' +
+                '</tr>';
+            tbody.append(row);
+        });
+    }
+
+    function adminReqQty(idx, delta) {
+        var newQty = adminReqItemsList[idx].qty + delta;
+        if (newQty < 1) {
+            adminReqRemove(idx);
+            return;
+        }
+        adminReqItemsList[idx].qty = newQty;
+        $('#arq_' + idx).val(newQty);
+    }
+
+    function adminReqQtyManual(idx, val) {
+        var v = parseInt(val);
+        if (isNaN(v) || v < 1) v = 1;
+        adminReqItemsList[idx].qty = v;
+        $('#arq_' + idx).val(v);
+    }
+
+    function adminReqRemove(idx) {
+        adminReqItemsList.splice(idx, 1);
+        adminReqRenderItems();
+        // Refresh select2 to allow re-adding
+        $('#adminReqEquipment').val(null).trigger('change');
+    }
+
+    $('#btnAdminReqSave').click(function() {
+        var empID = $('#adminReqEmployee').val();
+        if (!empID) {
+            Swal.fire('กรุณาเลือกผู้เบิก', '', 'warning');
+            return;
+        }
+        if (adminReqItemsList.length === 0) {
+            Swal.fire('กรุณาเลือกรายการของเบิก', '', 'warning');
+            return;
+        }
+
+        var items = adminReqItemsList.map(function(i) {
+            return { equipment_Code: i.id, Qty: i.qty, Q_true: i.qty };
+        });
+
+        Swal.fire({
+            icon: "question",
+            title: "ยืนยันการเบิกเพิ่มเติม?",
+            showDenyButton: true,
+            confirmButtonText: "บันทึก",
+            denyButtonText: "ยกเลิก"
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: "POST",
+                    url: "php_order_save_admin.php",
+                    dataType: "json",
+                    data: {
+                        employee_ID: empID,
+                        items: JSON.stringify(items)
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            position: "center",
+                            imageUrl: "image/icons8-load.gif",
+                            title: 'กำลังดำเนินการ กรุณารอสักครู่...',
+                            imageWidth: 100,
+                            showConfirmButton: false,
+                            allowOutsideClick: false
+                        });
+                    },
+                    success: function(data) {
+                        Swal.close();
+                        if (data.status === 'success') {
+                            Swal.fire({
+                                position: "center",
+                                title: "บันทึกรายการเบิกเพิ่มเติมแล้ว",
+                                imageUrl: "image/icons8-approved.gif",
+                                imageWidth: 70,
+                                showConfirmButton: false,
+                                timer: 1200
+                            }).then(function() {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({ icon: "error", title: data.message || "เกิดข้อผิดพลาด", timer: 2000, showConfirmButton: false });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({ icon: "error", title: "เกิดข้อผิดพลาดในการเชื่อมต่อ", timer: 2000, showConfirmButton: false });
+                    }
+                });
+            }
+        });
+    });
+
     // Tab switching — load data on demand
     $(document).ready(function() {
+        // Init Select2 for admin requisition modal
+        $('#adminReqEmployee').select2({
+            dropdownParent: $('#adminReqModal'),
+            width: '100%',
+            placeholder: 'เลือกผู้เบิก'
+        });
+
+        $('#adminReqEquipment').select2({
+            dropdownParent: $('#adminReqModal'),
+            width: '100%',
+            placeholder: 'พิมพ์ค้นหารหัสหรือชื่ออุปกรณ์',
+            allowClear: true,
+            minimumInputLength: 1,
+            ajax: {
+                url: 'php_search_equipment.php',
+                dataType: 'json',
+                delay: 300,
+                data: function(params) {
+                    var excludeIds = adminReqItemsList.map(function(i) { return i.id; }).join(',');
+                    return { term: params.term, exclude: excludeIds };
+                },
+                processResults: function(data) {
+                    return { results: data.results };
+                }
+            }
+        });
+
+        // When equipment selected, add to list
+        $('#adminReqEquipment').on('select2:select', function(e) {
+            var d = e.params.data;
+            // Check duplicate
+            for (var i = 0; i < adminReqItemsList.length; i++) {
+                if (adminReqItemsList[i].id == d.id) return;
+            }
+            adminReqItemsList.push({ id: d.id, code: d.code, name: d.name, unit: d.unit, qty: 1 });
+            adminReqRenderItems();
+            $(this).val(null).trigger('change');
+        });
+
+        // Reset modal on close
+        $('#adminReqModal').on('hidden.bs.modal', function() {
+            adminReqItemsList = [];
+            adminReqRenderItems();
+            $('#adminReqEmployee').val(null).trigger('change');
+            $('#adminReqEquipment').val(null).trigger('change');
+        });
+
         // Restore saved tab from localStorage
         var savedTab = localStorage.getItem('selectedTab');
         if (savedTab) {

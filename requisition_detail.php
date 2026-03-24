@@ -1,5 +1,6 @@
 <?php
 session_start();
+include_once 'funtion.php';
 // if (empty($_SESSION['employee_ID'])) {
 //     header('location:index.php');
 //     // exit();
@@ -8,11 +9,13 @@ session_start();
 if (isset($_GET['DataE'])) {
 
     $JsonText = decryptIt($_GET['DataE']);
-	$JSOnArr = json_decode($JsonText, true);
-	$now = time();
-
+    $JSOnArr = json_decode($JsonText, true);
+    $now = time();
+    
     $dataTime = (is_array($JSOnArr) && isset($JSOnArr['date_U'])) ? (int)$JSOnArr['date_U'] : 0;
-	if (($now - $dataTime) > 3600) {
+    $fromApp = (is_array($JSOnArr) && isset($JSOnArr['FromApp'])) ? trim((string)$JSOnArr['FromApp']) : "";
+    $ttl = (!empty($fromApp) || $fromApp === 'Noti') ? (7 * 24 * 60 * 60) : 7200;
+    if ($dataTime <= 0 || ($now - $dataTime) > $ttl) {
 		session_unset();
 		session_destroy();
 

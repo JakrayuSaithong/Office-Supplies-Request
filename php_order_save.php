@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once('condb.php');
+include_once('function.php');
 $date = date("Y-m-d H:i:s");
 $order_Name = $_SESSION['employee_Name'];
 $employee_ID = $_POST['employee_ID'];
@@ -79,16 +80,22 @@ if ($resultSave) {
     $query = sqlsrv_query($conn, $sql_order_max);
     $rowSelectOrder = sqlsrv_fetch_array($query, SQLSRV_FETCH_ASSOC);
 
-    $codetoken =  Get_Token($manager_ID);
+    // $codetoken =  Get_Token($manager_ID);
 
     if ($rowSelectOrder['order_Number'] != '') {
         $titelnoti = "แจ้งเตือนขอเบิกของ (" . $rowSelectOrder['order_Number'] . ")";
         $message = $order_Name . "\nได้สร้างเอกสารเพื่อขออนุมัติเบิกของ" . "\nเมื่อ " . $date;
 
+        $DataE = encryptIt(json_encode([
+            "auth_user_name" => $manager_ID,
+            "date_U" => time(),
+            "FromApp" => "Noti"
+        ], JSON_UNESCAPED_UNICODE));
+
         $post = [
             'notify_type'    =>    'msg',
             'TOWEB'            =>    'TOWEB',
-            'url'            =>    base64_encode("https://it.asefa.co.th/withdraw/requisition_detail.php?oid=" . $rowSelectOrder['order_ID'] . "&page=approve_page&onum=" . $rowSelectOrder['order_Number'] . "&token=" . $codetoken['Users_Token']),
+            'url'            =>    base64_encode("https://it.asefa.co.th/withdraw-test/requisition_detail.php?oid=" . $rowSelectOrder['order_ID'] . "&page=approve_page&onum=" . $rowSelectOrder['order_Number'] . "&DataE=" . $DataE),
             'notify_title'    =>    $titelnoti,
             'notify_msg'    =>    $message,
             'user_username'    =>    $manager_ID,

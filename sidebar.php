@@ -1,7 +1,7 @@
 <div class="wrapper">
     <nav id="sidebar" class="sidebar js-sidebar">
         <div class="sidebar-content js-simplebar">
-            <a class="sidebar-brand" href="cart.php?token=<?php echo $_SESSION['Users_Token']; ?>">
+            <a class="sidebar-brand" href="cart.php?DataE=<?php echo $_SESSION['DataE']; ?>">
                 <span class="align-middle">HR Requipment</span>
             </a>
 

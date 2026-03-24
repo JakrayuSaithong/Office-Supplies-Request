@@ -3,13 +3,14 @@ session_start();
 include_once 'funtion.php';
 // session_destroy();
 if (isset($_GET['DataE'])) {
-
     $JsonText = decryptIt($_GET['DataE']);
-	$JSOnArr = json_decode($JsonText, true);
-	$now = time();
-
+    $JSOnArr = json_decode($JsonText, true);
+    $now = time();
+    
     $dataTime = (is_array($JSOnArr) && isset($JSOnArr['date_U'])) ? (int)$JSOnArr['date_U'] : 0;
-	if (($now - $dataTime) > 3600) {
+    $fromApp = (is_array($JSOnArr) && isset($JSOnArr['FromApp'])) ? trim((string)$JSOnArr['FromApp']) : "";
+    $ttl = (!empty($fromApp) || $fromApp === 'Noti') ? (7 * 24 * 60 * 60) : 7200;
+    if ($dataTime <= 0 || ($now - $dataTime) > $ttl) {
 		session_unset();
 		session_destroy();
 
@@ -84,6 +85,14 @@ if (in_array($_SESSION['employee_ID'], $arrayPermis)) {
     $_SESSION['level'] = '1';
 }
 
+// Check if user already has a pending order
+$sqlPendingOrder = "SELECT COUNT(*) as cnt FROM tbl_orders
+    WHERE employee_ID = ? AND status = '1' AND manager_status = '0' AND approval != 'C' AND approval = 'A'";
+$stmtPending = sqlsrv_query($conn, $sqlPendingOrder, [$emp]);
+$rowPending = sqlsrv_fetch_array($stmtPending, SQLSRV_FETCH_ASSOC);
+$hasPendingOrder = ($rowPending['cnt'] > 0);
+sqlsrv_free_stmt($stmtPending);
+
 // Pre-fetch cart rows
 $sqlCart = "SELECT tbl_carts.employee_ID, tbl_carts.equipment_Code, tbl_carts.Qty,
             tbl_equipments.equipment_Name, tbl_equipments.unit, tbl_carts.add_date
@@ -99,6 +108,13 @@ $cartCount = count($cartRows);
 <?php include('sidebar.php'); ?>
 <div class="main">
     <?php include('navbar.php'); ?>
+    <?php if ($hasPendingOrder): ?>
+        <div class="alert alert-warning alert-dismissible fade show mx-3 mt-3 mb-0 rounded-3 border-0 shadow-sm" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            <strong>มีการสั่ง Order แล้ว</strong> ถ้าจะสั่งเพิ่ม ให้รบกวนติดต่อคุณแมน HR (3CX-3128)
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
     <div class="row g-3 p-3">
 
         <!-- ===== ตารางสินค้า ===== -->
@@ -143,7 +159,7 @@ $cartCount = count($cartRows);
                                         <td class="fw-semibold text-nowrap"><?php echo $rowTb['equipment_Name']; ?></td>
                                         <td><span class="text-muted small"><?php echo $rowTb['unit']; ?></span></td>
                                         <td class="text-center">
-                                            <button class="btn btn-success btn-sm rounded-pill px-3 add-request" onclick="addrequest('<?php echo $rowTb['equipment_ID']; ?>')">
+                                            <button class="btn btn-success btn-sm rounded-pill px-3 add-request" onclick="addrequest('<?php echo $rowTb['equipment_ID']; ?>')" <?php echo $hasPendingOrder ? 'disabled' : ''; ?>>
                                                 <i class="bi bi-basket3-fill"></i> เบิก
                                             </button>
                                         </td>
@@ -200,19 +216,25 @@ $cartCount = count($cartRows);
                         </div>
                         <div class="p-3 border-top">
                             <?php if ($showButtons): ?>
-                                <div class="d-flex gap-2 <?php echo $req_more ?>">
-                                    <button class="btn btn-primary rounded-pill flex-fill fw-semibold" onclick="select_emo()">
-                                        <i class="fa-solid fa-paper-plane me-1"></i> บันทึกรายการเบิก
-                                    </button>
-                                    <button class="btn btn-outline-danger rounded-pill" onclick="cancelCart('<?php echo $_SESSION['employee_ID'] ?>')" title="ยกเลิกทั้งหมด">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
-                                <div class="d-flex gap-2 <?php echo $hide_more ?>">
-                                    <button class="btn btn-primary rounded-pill flex-fill fw-semibold" id="edit-save" onclick="editOrder('<?php echo $onum ?>','<?php echo $_SESSION['employee_ID'] ?>')">
-                                        <i class="bi bi-floppy2 me-1"></i> บันทึกการแก้ไข
-                                    </button>
-                                </div>
+                                <?php if ($hasPendingOrder): ?>
+                                    <div class="alert alert-secondary rounded-3 text-center small mb-0">
+                                        <i class="fa-solid fa-ban me-1"></i> ไม่สามารถบันทึกรายการเบิกได้ เนื่องจากมี Order ค้างอยู่
+                                    </div>
+                                <?php else: ?>
+                                    <div class="d-flex gap-2 <?php echo $req_more ?>">
+                                        <button class="btn btn-primary rounded-pill flex-fill fw-semibold" onclick="select_emo()">
+                                            <i class="fa-solid fa-paper-plane me-1"></i> บันทึกรายการเบิก
+                                        </button>
+                                        <button class="btn btn-outline-danger rounded-pill" onclick="cancelCart('<?php echo $_SESSION['employee_ID'] ?>')" title="ยกเลิกทั้งหมด">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                    <div class="d-flex gap-2 <?php echo $hide_more ?>">
+                                        <button class="btn btn-primary rounded-pill flex-fill fw-semibold" id="edit-save" onclick="editOrder('<?php echo $onum ?>','<?php echo $_SESSION['employee_ID'] ?>')">
+                                            <i class="bi bi-floppy2 me-1"></i> บันทึกการแก้ไข
+                                        </button>
+                                    </div>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <div class="alert alert-warning rounded-3 text-center small mb-0">
                                     <i class="fa-solid fa-clock me-1"></i> เกินกำหนดเบิกแล้ว เบิกได้อีกในวันที่ 1 ของเดือนถัดไป
@@ -315,7 +337,7 @@ $cartCount = count($cartRows);
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal"><i class="fa-solid fa-xmark me-1"></i> ปิด</button>
-                <?php if ($cartCount > 0 && $showButtons): ?>
+                <?php if ($cartCount > 0 && $showButtons && !$hasPendingOrder): ?>
                     <button type="button" class="btn btn-primary rounded-pill px-3 <?php echo $req_more ?>" data-bs-dismiss="modal" onclick="select_emo()">
                         <i class="fa-solid fa-paper-plane me-1"></i> บันทึกรายการเบิก
                     </button>
@@ -500,7 +522,13 @@ $cartCount = count($cartRows);
         });
     }
 
+    var hasPendingOrder = <?php echo $hasPendingOrder ? 'true' : 'false'; ?>;
+
     function addrequest(equipment_Code) {
+        if (hasPendingOrder) {
+            Swal.fire({ icon: 'warning', title: 'ไม่สามารถเบิกได้', text: 'มี Order ค้างอยู่ กรุณาติดต่อคุณแมน HR (3CX-3128)' });
+            return;
+        }
         if (equipment_Code !== '') {
             $.ajax({
                 type: "POST",
